@@ -1,0 +1,47 @@
+name: Trigger auto deployment for container-app-lkjognje2zu7s
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ main ]
+    paths:
+    - '//**'
+    - '.github/workflows/container-app-lkjognje2zu7s-AutoDeployTrigger-94848446-e6c6-4ae0-89d3-c1739f1e19db.yml'
+
+  # Allow manual trigger 
+  workflow_dispatch:      
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions: 
+      id-token: write #This is required for requesting the OIDC JWT Token
+      contents: read #Required when GH token is used to authenticate with private repo
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.CONTAINERAPPLKJOGNJE2ZU7S_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.CONTAINERAPPLKJOGNJE2ZU7S_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.CONTAINERAPPLKJOGNJE2ZU7S_AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }} 
+          registryUrl: 
+          registryUsername: ${{ secrets.CONTAINERAPPLKJOGNJE2ZU7S_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.CONTAINERAPPLKJOGNJE2ZU7S_REGISTRY_PASSWORD }}
+          containerAppName: container-app-lkjognje2zu7s
+          resourceGroup: flaskbasicb0879ce1
+          imageToBuild: default/[parameters('containerAppName')]:${{ github.sha }}
+          _buildArgumentsKey_: |
+            _buildArgumentsValues_
+
+
